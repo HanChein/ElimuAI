@@ -1,0 +1,20 @@
+# Render Environment Variables
+# Copy these to your Render dashboard: Environment tab
+
+SECRET_KEY=af59a230da6739c5004137d7d0a87be3
+DATABASE_URL=sqlite:///elimuai.db
+FLASK_ENV=production
+
+# M-Pesa (Optional - leave blank for testing)
+MPESA_CONSUMER_KEY=
+MPESA_CONSUMER_SECRET=
+MPESA_SHORTCODE=
+MPESA_PASSKEY=
+MPESA_CALLBACK_URL=https://your-app.onrender.com/api/mpesa/callback
+
+# Instructions:
+# 1. Go to your Render service dashboard
+# 2. Click "Environment" tab
+# 3. Add each variable above (Key = Value)
+# 4. Click "Save Changes"
+# 5. Render will auto-redeploy
