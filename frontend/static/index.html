@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered e-learning platform for Tanzania with Swahili/English support">
+    <meta name="theme-color" content="#4a90d9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ElimuAI">
     <title>ElimuAI - Personalized Learning Platform</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 </head>
 <body>
     <div id="app">
@@ -29,6 +36,14 @@
                     <a href="#" class="nav-link" onclick="showPage('chatbot')" id="chatbotLink" style="display:none;">
                         <span class="nav-text-en">AI Tutor</span>
                         <span class="nav-text-sw" style="display:none;">Mwalimu AI</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="showPage('gamification')" id="gamificationLink" style="display:none;">
+                        <span class="nav-text-en">🏆 Rewards</span>
+                        <span class="nav-text-sw" style="display:none;">🏆 Tuzo</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="showPage('certificates')" id="certificatesLink" style="display:none;">
+                        <span class="nav-text-en">📜 Certs</span>
+                        <span class="nav-text-sw" style="display:none;">📜 Vyeti</span>
                     </a>
                     <div class="nav-auth" id="navAuth">
                         <button class="btn btn-outline" onclick="showPage('login')" id="loginBtn">
@@ -362,6 +377,137 @@
 
     <div id="notification" class="notification"></div>
 
+    <!-- Gamification Section -->
+    <div id="gamificationPage" class="page">
+        <div class="container">
+            <h1 class="page-title">
+                <span class="text-en">🏆 Achievements & Leaderboard</span>
+                <span class="text-sw" style="display:none;">🏆 Mafanikio na Orodha ya Viongozi</span>
+            </h1>
+            
+            <div class="gamification-stats" id="gamificationStats">
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value" id="totalPoints">0</div>
+                    <div class="stat-label">
+                        <span class="text-en">Total Points</span>
+                        <span class="text-sw" style="display:none;">Pointi Zote</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">
+                        <span class="text-en">Day Streak</span>
+                        <span class="text-sw" style="display:none;">Siku Mfululizo</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value" id="userLevel">1</div>
+                    <div class="stat-label">
+                        <span class="text-en">Level</span>
+                        <span class="text-sw" style="display:none;">Kiwango</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏅</div>
+                    <div class="stat-value" id="badgeCount">0</div>
+                    <div class="stat-label">
+                        <span class="text-en">Badges</span>
+                        <span class="text-sw" style="display:none;">Beji</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="badges-section">
+                <h2>
+                    <span class="text-en">🎖️ Your Badges</span>
+                    <span class="text-sw" style="display:none;">🎖️ Beji Zako</span>
+                </h2>
+                <div class="badges-grid" id="badgesGrid"></div>
+            </div>
+
+            <div class="leaderboard-section">
+                <h2>
+                    <span class="text-en">🏆 Leaderboard</span>
+                    <span class="text-sw" style="display:none;">🏆 Orodha ya Viongozi</span>
+                </h2>
+                <div class="leaderboard-filters">
+                    <button class="filter-btn active" onclick="loadLeaderboard('all')">
+                        <span class="text-en">All Time</span>
+                        <span class="text-sw" style="display:none;">Wakati Wote</span>
+                    </button>
+                    <button class="filter-btn" onclick="loadLeaderboard('week')">
+                        <span class="text-en">This Week</span>
+                        <span class="text-sw" style="display:none;">Wiki Hii</span>
+                    </button>
+                    <button class="filter-btn" onclick="loadLeaderboard('month')">
+                        <span class="text-en">This Month</span>
+                        <span class="text-sw" style="display:none;">Mwezi Huu</span>
+                    </button>
+                </div>
+                <div class="leaderboard-list" id="leaderboardList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certificates Section -->
+    <div id="certificatesPage" class="page">
+        <div class="container">
+            <h1 class="page-title">
+                <span class="text-en">📜 My Certificates</span>
+                <span class="text-sw" style="display:none;">📜 Vyeti Vyangu</span>
+            </h1>
+            <div class="certificates-grid" id="certificatesGrid"></div>
+        </div>
+    </div>
+
+    <!-- PWA Install Prompt -->
+    <div id="installPrompt" class="install-prompt" style="display:none;">
+        <div class="install-content">
+            <span class="install-icon">📱</span>
+            <div class="install-text">
+                <strong>Install ElimuAI</strong>
+                <span class="text-en">Add to home screen for offline access</span>
+                <span class="text-sw" style="display:none;">Ongeza kwenye skrini ya nyumbani</span>
+            </div>
+            <button class="btn btn-primary btn-sm" id="installBtn">Install</button>
+            <button class="btn-close" onclick="dismissInstallPrompt()">×</button>
+        </div>
+    </div>
+
     <script src="app.js"></script>
+    <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('ElimuAI: Service Worker registered'))
+                    .catch(err => console.log('ElimuAI: SW registration failed', err));
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').style.display = 'flex';
+        });
+
+        document.getElementById('installBtn')?.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                document.getElementById('installPrompt').style.display = 'none';
+            }
+        });
+
+        function dismissInstallPrompt() {
+            document.getElementById('installPrompt').style.display = 'none';
+        }
+    </script>
 </body>
 </html>

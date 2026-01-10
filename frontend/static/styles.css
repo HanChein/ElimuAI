@@ -692,3 +692,306 @@ body {
         padding: 0.375rem 0.75rem;
     }
 }
+
+/* ==================== GAMIFICATION STYLES ==================== */
+
+.gamification-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.badges-section, .leaderboard-section {
+    margin-bottom: 3rem;
+}
+
+.badges-section h2, .leaderboard-section h2 {
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.badge-card {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.badge-card.earned {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 20px rgba(74, 144, 217, 0.3);
+}
+
+.badge-card.locked {
+    opacity: 0.5;
+    filter: grayscale(50%);
+}
+
+.badge-card:hover {
+    transform: translateY(-5px);
+}
+
+.badge-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.badge-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.badge-earned, .badge-locked {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.75rem;
+}
+
+.badge-earned {
+    color: #4CAF50;
+}
+
+.leaderboard-filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.leaderboard-list {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.leaderboard-item {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px 80px;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--bg-secondary);
+    transition: background 0.3s;
+}
+
+.leaderboard-item:hover {
+    background: var(--bg-secondary);
+}
+
+.leaderboard-item:last-child {
+    border-bottom: none;
+}
+
+.leaderboard-item.top-1 {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), transparent);
+}
+
+.leaderboard-item.top-2 {
+    background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), transparent);
+}
+
+.leaderboard-item.top-3 {
+    background: linear-gradient(135deg, rgba(205, 127, 50, 0.1), transparent);
+}
+
+.leaderboard-rank {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.leaderboard-user {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.leaderboard-points {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.leaderboard-streak {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* ==================== CERTIFICATES STYLES ==================== */
+
+.certificates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.certificate-card {
+    background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.certificate-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+}
+
+.certificate-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.certificate-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.certificate-id {
+    font-family: monospace;
+    font-size: 0.875rem;
+    color: var(--primary-color);
+    background: var(--bg-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.certificate-date {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.no-certificates {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+}
+
+/* ==================== PWA INSTALL PROMPT ==================== */
+
+.install-prompt {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.install-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 600px;
+    width: 100%;
+}
+
+.install-icon {
+    font-size: 2.5rem;
+}
+
+.install-text {
+    flex: 1;
+}
+
+.install-text strong {
+    display: block;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.install-text span {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.btn-close:hover {
+    color: var(--text-primary);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* ==================== RESPONSIVE GAMIFICATION ==================== */
+
+@media (max-width: 768px) {
+    .gamification-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .leaderboard-item {
+        grid-template-columns: 50px 1fr 70px;
+    }
+    
+    .leaderboard-streak {
+        display: none;
+    }
+    
+    .install-content {
+        flex-wrap: wrap;
+        text-align: center;
+    }
+    
+    .install-text {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .badges-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .badge-card {
+        padding: 1rem 0.5rem;
+    }
+    
+    .badge-icon {
+        font-size: 2rem;
+    }
+    
+    .badge-name {
+        font-size: 0.75rem;
+    }
+}

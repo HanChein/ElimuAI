@@ -213,3 +213,73 @@ class Payment(db.Model):
             'created_at': self.created_at.isoformat(),
             'completed_at': self.completed_at.isoformat() if self.completed_at else None
         }
+
+# Gamification Models
+class UserPoints(db.Model):
+    __tablename__ = 'user_points'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, unique=True)
+    total_points = db.Column(db.Integer, default=0)
+    current_streak = db.Column(db.Integer, default=0)
+    longest_streak = db.Column(db.Integer, default=0)
+    last_activity = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref='points_record')
+    
+    def to_dict(self):
+        return {
+            'user_id': self.user_id,
+            'total_points': self.total_points,
+            'current_streak': self.current_streak,
+            'longest_streak': self.longest_streak,
+            'last_activity': self.last_activity.isoformat() if self.last_activity else None
+        }
+
+class UserBadge(db.Model):
+    __tablename__ = 'user_badges'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    badge_id = db.Column(db.String(50), nullable=False)
+    earned_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref='badges')
+    
+    def to_dict(self):
+        return {
+            'badge_id': self.badge_id,
+            'earned_at': self.earned_at.isoformat()
+        }
+
+class Certificate(db.Model):
+    __tablename__ = 'certificates'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    certificate_id = db.Column(db.String(50), unique=True, nullable=False)
+    issued_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref='certificates')
+    course = db.relationship('Course', backref='certificates')
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'certificate_id': self.certificate_id,
+            'course_id': self.course_id,
+            'issued_at': self.issued_at.isoformat()
+        }
+
+class ChatHistory(db.Model):
+    __tablename__ = 'chat_history'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    response = db.Column(db.Text, nullable=False)
+    language = db.Column(db.String(10), default='en')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref='chat_history')

@@ -8,10 +8,13 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_cors import CORS
 from datetime import datetime, timedelta
-from models import db, User, Course, Lesson, Quiz, Question, QuizAttempt, Progress, Payment
+from models import db, User, Course, Lesson, Quiz, Question, QuizAttempt, Progress, Payment, UserPoints, UserBadge, Certificate, ChatHistory
 from config import Config
 from chatbot import SimpleChatbot
 from mpesa import MPesaAPI
+from gamification import GamificationEngine
+import uuid
+import json
 
 app = Flask(__name__, static_folder='../frontend/static', static_url_path='')
 app.config.from_object(Config)
@@ -479,6 +482,186 @@ def check_payment_status(checkout_request_id):
     
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
+
+# ==================== GAMIFICATION ROUTES ====================
+
+@app.route('/api/gamification/stats', methods=['GET'])
+@login_required
+def get_gamification_stats():
+    try:
+        stats = GamificationEngine.get_user_stats(current_user)
+        badges = UserBadge.query.filter_by(user_id=current_user.id).all()
+        
+        badge_details = []
+        for badge in badges:
+            badge_info = GamificationEngine.BADGES.get(badge.badge_id, {})
+            badge_details.append({
+                'id': badge.badge_id,
+                'name_en': badge_info.get('name_en', badge.badge_id),
+                'name_sw': badge_info.get('name_sw', badge.badge_id),
+                'icon': badge_info.get('icon', '🏅'),
+                'earned_at': badge.earned_at.isoformat()
+            })
+        
+        return jsonify({
+            'success': True,
+            'stats': stats,
+            'badges': badge_details,
+            'all_badges': GamificationEngine.BADGES
+        }), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/gamification/leaderboard', methods=['GET'])
+def get_leaderboard():
+    try:
+        timeframe = request.args.get('timeframe', 'all')
+        limit = int(request.args.get('limit', 10))
+        leaderboard = GamificationEngine.get_leaderboard(limit=limit, timeframe=timeframe)
+        return jsonify({'success': True, 'leaderboard': leaderboard}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/gamification/award', methods=['POST'])
+@login_required
+def award_points():
+    try:
+        data = request.get_json()
+        action = data.get('action')
+        points = GamificationEngine.award_points(current_user, action)
+        GamificationEngine.update_streak(current_user)
+        return jsonify({'success': True, 'points_awarded': points}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# ==================== CERTIFICATE ROUTES ====================
+
+@app.route('/api/certificates', methods=['GET'])
+@login_required
+def get_certificates():
+    try:
+        certificates = Certificate.query.filter_by(user_id=current_user.id).all()
+        cert_list = []
+        for cert in certificates:
+            course = Course.query.get(cert.course_id)
+            cert_list.append({
+                'id': cert.id,
+                'certificate_id': cert.certificate_id,
+                'course_title': course.title_en if current_user.preferred_language == 'en' else course.title_sw,
+                'issued_at': cert.issued_at.isoformat()
+            })
+        return jsonify({'success': True, 'certificates': cert_list}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/certificates/generate/<int:course_id>', methods=['POST'])
+@login_required
+def generate_certificate(course_id):
+    try:
+        course = Course.query.get_or_404(course_id)
+        
+        # Check if user completed all lessons
+        lessons = Lesson.query.filter_by(course_id=course_id).all()
+        completed = Progress.query.filter_by(
+            user_id=current_user.id,
+            course_id=course_id,
+            completed=True
+        ).count()
+        
+        if completed < len(lessons):
+            return jsonify({
+                'success': False,
+                'message': 'Complete all lessons first'
+            }), 400
+        
+        # Check if certificate already exists
+        existing = Certificate.query.filter_by(
+            user_id=current_user.id,
+            course_id=course_id
+        ).first()
+        
+        if existing:
+            return jsonify({
+                'success': True,
+                'certificate': existing.to_dict(),
+                'message': 'Certificate already issued'
+            }), 200
+        
+        # Generate new certificate
+        cert_id = f"ELIMU-{uuid.uuid4().hex[:8].upper()}"
+        certificate = Certificate(
+            user_id=current_user.id,
+            course_id=course_id,
+            certificate_id=cert_id
+        )
+        db.session.add(certificate)
+        
+        # Award bonus points
+        GamificationEngine.award_points(current_user, 'course_complete', 100)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'certificate': certificate.to_dict(),
+            'message': 'Certificate generated successfully'
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/certificates/verify/<certificate_id>', methods=['GET'])
+def verify_certificate(certificate_id):
+    try:
+        cert = Certificate.query.filter_by(certificate_id=certificate_id).first()
+        if cert:
+            user = User.query.get(cert.user_id)
+            course = Course.query.get(cert.course_id)
+            return jsonify({
+                'success': True,
+                'valid': True,
+                'certificate': {
+                    'id': cert.certificate_id,
+                    'recipient': user.username,
+                    'course': course.title_en,
+                    'issued_at': cert.issued_at.isoformat()
+                }
+            }), 200
+        return jsonify({'success': True, 'valid': False}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# ==================== ENHANCED CHATBOT WITH MEMORY ====================
+
+@app.route('/api/chatbot/history', methods=['GET'])
+@login_required
+def get_chat_history():
+    try:
+        limit = int(request.args.get('limit', 20))
+        history = ChatHistory.query.filter_by(user_id=current_user.id)\
+            .order_by(ChatHistory.created_at.desc())\
+            .limit(limit).all()
+        
+        return jsonify({
+            'success': True,
+            'history': [{
+                'message': h.message,
+                'response': h.response,
+                'created_at': h.created_at.isoformat()
+            } for h in reversed(history)]
+        }), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# ==================== PWA ROUTES ====================
+
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('../frontend/static', 'manifest.json')
+
+@app.route('/sw.js')
+def service_worker():
+    return send_from_directory('../frontend/static', 'sw.js')
 
 @app.errorhandler(404)
 def not_found(e):

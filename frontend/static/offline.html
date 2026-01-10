@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElimuAI - Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #4a90d9;
+        }
+        
+        p {
+            font-size: 16px;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #4a90d9 0%, #357abd 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(74, 144, 217, 0.4);
+        }
+        
+        .tips {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            text-align: left;
+        }
+        
+        .tips h3 {
+            color: #4a90d9;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .tips ul {
+            list-style: none;
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+        
+        .tips li {
+            padding: 5px 0;
+        }
+        
+        .tips li::before {
+            content: "✓ ";
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📶</div>
+        <h1>Huna Mtandao / You're Offline</h1>
+        <p>
+            <strong>SW:</strong> Huwezi kufikia ElimuAI kwa sasa. Tafadhali angalia muunganisho wako wa intaneti.<br><br>
+            <strong>EN:</strong> You can't access ElimuAI right now. Please check your internet connection.
+        </p>
+        <a href="/" class="btn" onclick="location.reload(); return false;">
+            Jaribu Tena / Try Again
+        </a>
+        
+        <div class="tips">
+            <h3>💡 Vidokezo / Tips:</h3>
+            <ul>
+                <li>Angalia WiFi au data / Check WiFi or mobile data</li>
+                <li>Jaribu kuwasha na kuzima mtandao / Try toggling network</li>
+                <li>Sogea mahali penye mtandao / Move to area with signal</li>
+                <li>Subiri kidogo na ujaribu tena / Wait and try again</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-retry when back online
+        window.addEventListener('online', () => {
+            location.reload();
+        });
+    </script>
+</body>
+</html>

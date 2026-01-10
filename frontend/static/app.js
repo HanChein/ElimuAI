@@ -19,6 +19,8 @@ function showPage(pageName) {
     if (pageName === 'courses') loadCourses();
     if (pageName === 'dashboard') loadDashboard();
     if (pageName === 'chatbot') initChatbot();
+    if (pageName === 'gamification') loadGamification();
+    if (pageName === 'certificates') loadCertificates();
 }
 
 function toggleNav() {
@@ -48,6 +50,8 @@ function updateAuthUI() {
     document.getElementById('coursesLink').style.display = isLoggedIn ? 'inline-block' : 'none';
     document.getElementById('dashboardLink').style.display = isLoggedIn ? 'inline-block' : 'none';
     document.getElementById('chatbotLink').style.display = isLoggedIn ? 'inline-block' : 'none';
+    document.getElementById('gamificationLink').style.display = isLoggedIn ? 'inline-block' : 'none';
+    document.getElementById('certificatesLink').style.display = isLoggedIn ? 'inline-block' : 'none';
 }
 
 async function register(event) {
@@ -443,6 +447,163 @@ function addChatMessage(sender, text) {
     messageDiv.innerHTML = `<div class="chat-bubble">${text}</div>`;
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// ==================== GAMIFICATION FUNCTIONS ====================
+
+async function loadGamification() {
+    try {
+        const response = await fetch(`${API_BASE}/api/gamification/stats`, {
+            credentials: 'include'
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            const stats = result.stats;
+            document.getElementById('totalPoints').textContent = stats.total_points || 0;
+            document.getElementById('currentStreak').textContent = stats.current_streak || 0;
+            document.getElementById('userLevel').textContent = stats.level || 1;
+            document.getElementById('badgeCount').textContent = stats.badges_earned || 0;
+            
+            renderBadges(result.badges, result.all_badges);
+        }
+        
+        loadLeaderboard('all');
+    } catch (error) {
+        console.error('Error loading gamification:', error);
+    }
+}
+
+function renderBadges(earnedBadges, allBadges) {
+    const grid = document.getElementById('badgesGrid');
+    const earnedIds = earnedBadges.map(b => b.id);
+    
+    grid.innerHTML = Object.entries(allBadges).map(([id, badge]) => {
+        const earned = earnedIds.includes(id);
+        const name = currentLanguage === 'sw' ? badge.name_sw : badge.name_en;
+        return `
+            <div class="badge-card ${earned ? 'earned' : 'locked'}">
+                <div class="badge-icon">${badge.icon}</div>
+                <div class="badge-name">${name}</div>
+                ${earned ? '<div class="badge-earned">✓</div>' : '<div class="badge-locked">🔒</div>'}
+            </div>
+        `;
+    }).join('');
+}
+
+async function loadLeaderboard(timeframe = 'all') {
+    try {
+        document.querySelectorAll('.leaderboard-filters .filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event?.target?.classList.add('active');
+        
+        const response = await fetch(`${API_BASE}/api/gamification/leaderboard?timeframe=${timeframe}&limit=10`);
+        const result = await response.json();
+        
+        if (result.success) {
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = result.leaderboard.map((user, index) => `
+                <div class="leaderboard-item ${index < 3 ? 'top-' + (index + 1) : ''}">
+                    <div class="leaderboard-rank">${getRankIcon(index + 1)}</div>
+                    <div class="leaderboard-user">${user.username}</div>
+                    <div class="leaderboard-points">${user.points} pts</div>
+                    <div class="leaderboard-streak">🔥 ${user.streak}</div>
+                </div>
+            `).join('') || '<p>No leaderboard data yet</p>';
+        }
+    } catch (error) {
+        console.error('Error loading leaderboard:', error);
+    }
+}
+
+function getRankIcon(rank) {
+    if (rank === 1) return '🥇';
+    if (rank === 2) return '🥈';
+    if (rank === 3) return '🥉';
+    return `#${rank}`;
+}
+
+// ==================== CERTIFICATES FUNCTIONS ====================
+
+async function loadCertificates() {
+    try {
+        const response = await fetch(`${API_BASE}/api/certificates`, {
+            credentials: 'include'
+        });
+        const result = await response.json();
+        
+        const grid = document.getElementById('certificatesGrid');
+        
+        if (result.success && result.certificates.length > 0) {
+            grid.innerHTML = result.certificates.map(cert => `
+                <div class="certificate-card">
+                    <div class="certificate-icon">📜</div>
+                    <div class="certificate-title">${cert.course_title}</div>
+                    <div class="certificate-id">ID: ${cert.certificate_id}</div>
+                    <div class="certificate-date">${new Date(cert.issued_at).toLocaleDateString()}</div>
+                    <button class="btn btn-primary btn-sm" onclick="shareCertificate('${cert.certificate_id}')">
+                        ${currentLanguage === 'sw' ? 'Shiriki' : 'Share'}
+                    </button>
+                </div>
+            `).join('');
+        } else {
+            grid.innerHTML = `
+                <div class="no-certificates">
+                    <p>${currentLanguage === 'sw' ? 'Hakuna vyeti bado. Kamilisha kozi kupata cheti!' : 'No certificates yet. Complete a course to earn one!'}</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading certificates:', error);
+    }
+}
+
+async function generateCertificate(courseId) {
+    try {
+        const response = await fetch(`${API_BASE}/api/certificates/generate/${courseId}`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(currentLanguage === 'sw' ? 'Cheti kimezalishwa!' : 'Certificate generated!', 'success');
+            loadCertificates();
+        } else {
+            showNotification(result.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error generating certificate', 'error');
+    }
+}
+
+function shareCertificate(certId) {
+    const url = `${window.location.origin}/api/certificates/verify/${certId}`;
+    if (navigator.share) {
+        navigator.share({
+            title: 'ElimuAI Certificate',
+            text: currentLanguage === 'sw' ? 'Angalia cheti changu cha ElimuAI!' : 'Check out my ElimuAI certificate!',
+            url: url
+        });
+    } else {
+        navigator.clipboard.writeText(url);
+        showNotification(currentLanguage === 'sw' ? 'Kiungo kimenakiliwa!' : 'Link copied!', 'success');
+    }
+}
+
+// Award points for actions
+async function awardPoints(action) {
+    try {
+        await fetch(`${API_BASE}/api/gamification/award`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
+            body: JSON.stringify({ action })
+        });
+    } catch (error) {
+        console.error('Error awarding points:', error);
+    }
 }
 
 updateAuthUI();
