@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElimuAI - Personalized Learning Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <nav class="navbar" id="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <span class="logo">📚 ElimuAI</span>
+                </div>
+                <div class="nav-menu" id="navMenu">
+                    <a href="#" class="nav-link" onclick="showPage('home')">
+                        <span class="nav-text-en">Home</span>
+                        <span class="nav-text-sw" style="display:none;">Nyumbani</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="showPage('courses')" id="coursesLink" style="display:none;">
+                        <span class="nav-text-en">Courses</span>
+                        <span class="nav-text-sw" style="display:none;">Kozi</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="showPage('dashboard')" id="dashboardLink" style="display:none;">
+                        <span class="nav-text-en">Dashboard</span>
+                        <span class="nav-text-sw" style="display:none;">Dashibodi</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="showPage('chatbot')" id="chatbotLink" style="display:none;">
+                        <span class="nav-text-en">AI Tutor</span>
+                        <span class="nav-text-sw" style="display:none;">Mwalimu AI</span>
+                    </a>
+                    <div class="nav-auth" id="navAuth">
+                        <button class="btn btn-outline" onclick="showPage('login')" id="loginBtn">
+                            <span class="nav-text-en">Login</span>
+                            <span class="nav-text-sw" style="display:none;">Ingia</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="showPage('register')" id="registerBtn">
+                            <span class="nav-text-en">Sign Up</span>
+                            <span class="nav-text-sw" style="display:none;">Jisajili</span>
+                        </button>
+                        <button class="btn btn-outline" onclick="logout()" id="logoutBtn" style="display:none;">
+                            <span class="nav-text-en">Logout</span>
+                            <span class="nav-text-sw" style="display:none;">Toka</span>
+                        </button>
+                    </div>
+                    <div class="language-toggle">
+                        <button onclick="toggleLanguage()" class="btn-lang">
+                            <span id="langToggleText">SW</span>
+                        </button>
+                    </div>
+                </div>
+                <button class="nav-toggle" onclick="toggleNav()">☰</button>
+            </div>
+        </nav>
+
+        <div id="homePage" class="page active">
+            <section class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        <span class="text-en">Welcome to ElimuAI</span>
+                        <span class="text-sw" style="display:none;">Karibu ElimuAI</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        <span class="text-en">Personalized AI-powered learning for Math, Business & Vocational Skills</span>
+                        <span class="text-sw" style="display:none;">Kujifunza kwa AI kwa Hesabu, Biashara na Ujuzi wa Ufundi</span>
+                    </p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary btn-lg" onclick="showPage('register')">
+                            <span class="text-en">Get Started Free</span>
+                            <span class="text-sw" style="display:none;">Anza Bure</span>
+                        </button>
+                        <button class="btn btn-outline btn-lg" onclick="showPage('courses')">
+                            <span class="text-en">Browse Courses</span>
+                            <span class="text-sw" style="display:none;">Tazama Kozi</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="features">
+                <div class="container">
+                    <h2 class="section-title">
+                        <span class="text-en">Why Choose ElimuAI?</span>
+                        <span class="text-sw" style="display:none;">Kwa Nini Chagua ElimuAI?</span>
+                    </h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">🤖</div>
+                            <h3>
+                                <span class="text-en">AI-Powered Tutoring</span>
+                                <span class="text-sw" style="display:none;">Mwalimu wa AI</span>
+                            </h3>
+                            <p>
+                                <span class="text-en">Get instant help from our intelligent chatbot tutor in Swahili or English</span>
+                                <span class="text-sw" style="display:none;">Pata msaada wa haraka kutoka kwa mwalimu wetu wa AI kwa Kiswahili au Kiingereza</span>
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📱</div>
+                            <h3>
+                                <span class="text-en">Mobile-First Design</span>
+                                <span class="text-sw" style="display:none;">Muundo wa Simu</span>
+                            </h3>
+                            <p>
+                                <span class="text-en">Learn anywhere, anytime on your Android device</span>
+                                <span class="text-sw" style="display:none;">Jifunze popote, wakati wowote kwenye kifaa chako cha Android</span>
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🎯</div>
+                            <h3>
+                                <span class="text-en">Adaptive Quizzes</span>
+                                <span class="text-sw" style="display:none;">Majaribio ya Akili</span>
+                            </h3>
+                            <p>
+                                <span class="text-en">Test your knowledge with quizzes that adapt to your level</span>
+                                <span class="text-sw" style="display:none;">Jaribu maarifa yako na majaribio yanayobadilika kulingana na kiwango chako</span>
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">💳</div>
+                            <h3>
+                                <span class="text-en">M-Pesa Integration</span>
+                                <span class="text-sw" style="display:none;">Uunganisho wa M-Pesa</span>
+                            </h3>
+                            <p>
+                                <span class="text-en">Easy payments for premium content via M-Pesa</span>
+                                <span class="text-sw" style="display:none;">Malipo rahisi kwa maudhui ya premium kupitia M-Pesa</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="registerPage" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2 class="auth-title">
+                        <span class="text-en">Create Account</span>
+                        <span class="text-sw" style="display:none;">Fungua Akaunti</span>
+                    </h2>
+                    <form id="registerForm" onsubmit="register(event)">
+                        <div class="form-group">
+                            <label>
+                                <span class="text-en">Username</span>
+                                <span class="text-sw" style="display:none;">Jina la Mtumiaji</span>
+                            </label>
+                            <input type="text" name="username" required class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <span class="text-en">Email</span>
+                                <span class="text-sw" style="display:none;">Barua Pepe</span>
+                            </label>
+                            <input type="email" name="email" required class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <span class="text-en">Phone Number</span>
+                                <span class="text-sw" style="display:none;">Nambari ya Simu</span>
+                            </label>
+                            <input type="tel" name="phone_number" placeholder="0712345678" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <span class="text-en">Password</span>
+                                <span class="text-sw" style="display:none;">Nywila</span>
+                            </label>
+                            <input type="password" name="password" required class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <span class="text-en">Preferred Language</span>
+                                <span class="text-sw" style="display:none;">Lugha Unayopendelea</span>
+                            </label>
+                            <select name="preferred_language" class="form-input">
+                                <option value="sw">Kiswahili</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <span class="text-en">Sign Up</span>
+                            <span class="text-sw" style="display:none;">Jisajili</span>
+                        </button>
+                    </form>
+                    <p class="auth-footer">
+                        <span class="text-en">Already have an account?</span>
+                        <span class="text-sw" style="display:none;">Tayari una akaunti?</span>
+                        <a href="#" onclick="showPage('login')">
+                            <span class="text-en">Login</span>
+                            <span class="text-sw" style="display:none;">Ingia</span>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="loginPage" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2 class="auth-title">
+                        <span class="text-en">Login</span>
+                        <span class="text-sw" style="display:none;">Ingia</span>
+                    </h2>
+                    <form id="loginForm" onsubmit="login(event)">
+                        <div class="form-group">
+                            <label>
+                                <span class="text-en">Username</span>
+                                <span class="text-sw" style="display:none;">Jina la Mtumiaji</span>
+                            </label>
+                            <input type="text" name="username" required class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <span class="text-en">Password</span>
+                                <span class="text-sw" style="display:none;">Nywila</span>
+                            </label>
+                            <input type="password" name="password" required class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="remember">
+                                <span class="text-en">Remember me</span>
+                                <span class="text-sw" style="display:none;">Nikumbuke</span>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <span class="text-en">Login</span>
+                            <span class="text-sw" style="display:none;">Ingia</span>
+                        </button>
+                    </form>
+                    <p class="auth-footer">
+                        <span class="text-en">Don't have an account?</span>
+                        <span class="text-sw" style="display:none;">Huna akaunti?</span>
+                        <a href="#" onclick="showPage('register')">
+                            <span class="text-en">Sign Up</span>
+                            <span class="text-sw" style="display:none;">Jisajili</span>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboardPage" class="page">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1>
+                        <span class="text-en">My Dashboard</span>
+                        <span class="text-sw" style="display:none;">Dashibodi Yangu</span>
+                    </h1>
+                    <div id="premiumBadge"></div>
+                </div>
+                
+                <div class="stats-grid" id="statsGrid">
+                </div>
+
+                <div class="dashboard-section">
+                    <h2>
+                        <span class="text-en">Recent Progress</span>
+                        <span class="text-sw" style="display:none;">Maendeleo ya Hivi Karibuni</span>
+                    </h2>
+                    <div id="recentProgress"></div>
+                </div>
+
+                <div class="dashboard-section">
+                    <h2>
+                        <span class="text-en">Recent Quiz Results</span>
+                        <span class="text-sw" style="display:none;">Matokeo ya Majaribio ya Hivi Karibuni</span>
+                    </h2>
+                    <div id="recentQuizzes"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="coursesPage" class="page">
+            <div class="container">
+                <h1>
+                    <span class="text-en">Available Courses</span>
+                    <span class="text-sw" style="display:none;">Kozi Zinazopatikana</span>
+                </h1>
+                
+                <div class="filter-bar">
+                    <button class="filter-btn active" onclick="filterCourses('all')">
+                        <span class="text-en">All</span>
+                        <span class="text-sw" style="display:none;">Zote</span>
+                    </button>
+                    <button class="filter-btn" onclick="filterCourses('math')">
+                        <span class="text-en">Math</span>
+                        <span class="text-sw" style="display:none;">Hesabu</span>
+                    </button>
+                    <button class="filter-btn" onclick="filterCourses('business')">
+                        <span class="text-en">Business</span>
+                        <span class="text-sw" style="display:none;">Biashara</span>
+                    </button>
+                    <button class="filter-btn" onclick="filterCourses('vocational')">
+                        <span class="text-en">Vocational</span>
+                        <span class="text-sw" style="display:none;">Ufundi</span>
+                    </button>
+                </div>
+
+                <div class="courses-grid" id="coursesGrid"></div>
+            </div>
+        </div>
+
+        <div id="courseDetailPage" class="page">
+            <div class="container">
+                <button class="btn btn-outline" onclick="showPage('courses')">
+                    <span class="text-en">← Back to Courses</span>
+                    <span class="text-sw" style="display:none;">← Rudi kwa Kozi</span>
+                </button>
+                <div id="courseDetail"></div>
+            </div>
+        </div>
+
+        <div id="lessonPage" class="page">
+            <div class="container">
+                <button class="btn btn-outline" onclick="backToCourse()">
+                    <span class="text-en">← Back to Course</span>
+                    <span class="text-sw" style="display:none;">← Rudi kwa Kozi</span>
+                </button>
+                <div id="lessonContent"></div>
+            </div>
+        </div>
+
+        <div id="quizPage" class="page">
+            <div class="container">
+                <button class="btn btn-outline" onclick="backToCourse()">
+                    <span class="text-en">← Back to Course</span>
+                    <span class="text-sw" style="display:none;">← Rudi kwa Kozi</span>
+                </button>
+                <div id="quizContent"></div>
+            </div>
+        </div>
+
+        <div id="chatbotPage" class="page">
+            <div class="container">
+                <div class="chatbot-container">
+                    <div class="chatbot-header">
+                        <h2>🤖 
+                            <span class="text-en">AI Tutor</span>
+                            <span class="text-sw" style="display:none;">Mwalimu wa AI</span>
+                        </h2>
+                        <p>
+                            <span class="text-en">Ask me anything about Math, Business, or Vocational Skills!</span>
+                            <span class="text-sw" style="display:none;">Niulize chochote kuhusu Hesabu, Biashara, au Ujuzi wa Ufundi!</span>
+                        </p>
+                    </div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <form class="chat-input-form" onsubmit="sendMessage(event)">
+                        <input type="text" id="chatInput" class="chat-input" placeholder="Type your question..." required>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="text-en">Send</span>
+                            <span class="text-sw" style="display:none;">Tuma</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
