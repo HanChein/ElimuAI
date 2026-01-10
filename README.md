@@ -1,6 +1,7 @@
 # ElimuAI - AI-Powered E-Learning Platform for Tanzania
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://elimuai.onrender.com)
+[![PWA Ready](https://img.shields.io/badge/PWA-ready-purple.svg)](https://elimuai.onrender.com)
 ![GitHub stars](https://img.shields.io/github/stars/kadioko/ElimuAI?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/kadioko/ElimuAI?style=social)
 ![GitHub issues](https://img.shields.io/github/issues/kadioko/ElimuAI)
@@ -10,29 +11,51 @@
 
 > **🌐 Live Demo: [https://elimuai.onrender.com](https://elimuai.onrender.com)**
 
-**AI-powered e-learning platform for Tanzania** with Swahili/English support, gamification, and M-Pesa integration.
+**AI-powered e-learning platform for Tanzania** with Swahili/English support, gamification, certificates, and M-Pesa integration.
 
-ElimuAI is a comprehensive e-learning platform designed for Tanzanian users, offering personalized AI tutoring in Swahili and English for Math, Business, and Vocational Skills. Built with mobile-first design for accessibility across Tanzania.
+ElimuAI is a comprehensive e-learning platform designed for Tanzanian users, offering personalized AI tutoring in Swahili and English for Math, Business, and Vocational Skills. Built with mobile-first design, PWA support, and modern UI/UX for accessibility across Tanzania.
 
 ## 🎯 Live Demo
 
 **Try it now:** [https://elimuai.onrender.com](https://elimuai.onrender.com)
 
-- Register a new account
+- Register a new account (with animated onboarding tour!)
 - Browse courses in Math, Business, and Vocational Skills
 - Take adaptive quizzes with instant feedback
 - Chat with the AI tutor in Swahili or English
-- Track your learning progress
+- Track your learning progress with charts
+- Earn points, badges, and certificates
+- Compete on the leaderboard
 
 ## ✨ Features
 
-- 🤖 **AI Chatbot Tutor**: Intelligent NLP-based chatbot providing instant help in Swahili and English
-- 📚 **Adaptive Quizzes**: Interactive quizzes with instant feedback and explanations
-- 📱 **Mobile-Responsive**: Optimized for Android devices and mobile users in Dar es Salaam
-- 💳 **M-Pesa Integration**: Seamless premium subscription payments via M-Pesa
-- 📊 **Progress Tracking**: Comprehensive dashboard to monitor learning progress
-- 🌍 **Bilingual Support**: Full support for Swahili and English languages
-- 🎯 **Personalized Learning**: Adaptive content based on user performance
+### Core Learning
+- 🤖 **AI Chatbot Tutor** - Intelligent NLP-based chatbot providing instant help in Swahili and English
+- 📚 **Adaptive Quizzes** - Interactive quizzes with instant feedback and explanations
+- 📊 **Progress Tracking** - Comprehensive dashboard with visual charts
+- 🎯 **Personalized Learning** - Adaptive content based on user performance
+
+### Gamification System
+- 🏆 **Points & Levels** - Earn XP for completing lessons, quizzes, and daily activities
+- 🏅 **Badges** - Unlock achievements for milestones (First Steps, Quiz Master, etc.)
+- 🔥 **Streaks** - Maintain daily learning streaks for bonus points
+- 📈 **Leaderboard** - Compete with other learners (weekly/monthly/all-time)
+- 📜 **Certificates** - Earn shareable certificates upon course completion
+
+### Modern UI/UX
+- 🌙 **Dark/Light Mode** - Toggle themes with smooth transitions
+- 📱 **PWA Support** - Install as app, works offline
+- 🎨 **Modern Design** - Glassmorphism, gradients, animations
+- ⌨️ **Keyboard Shortcuts** - Navigate quickly with hotkeys
+- 🔊 **Sound Effects** - Audio feedback for achievements
+- 🎓 **Onboarding Tour** - Guided tour for new users
+
+### Platform Features
+- 🌍 **Bilingual Support** - Full Swahili and English support
+- 📱 **Mobile-Responsive** - Optimized for Android devices
+- 💳 **M-Pesa Integration** - Seamless premium payments
+- 🔔 **Toast Notifications** - Beautiful in-app notifications
+- 👤 **User Profiles** - Avatar upload, stats, settings
 
 ## Tech Stack
 
@@ -301,6 +324,16 @@ heroku open
 - `POST /api/mpesa/callback` - M-Pesa callback handler
 - `GET /api/mpesa/status/<id>` - Check payment status
 
+### Gamification
+- `GET /api/gamification/stats` - Get user points, level, streak
+- `GET /api/gamification/leaderboard` - Get leaderboard (all/week/month)
+- `POST /api/gamification/award` - Award points for actions
+
+### Certificates
+- `GET /api/certificates` - Get user's certificates
+- `POST /api/certificates/generate/<course_id>` - Generate certificate
+- `GET /api/certificates/verify/<cert_id>` - Verify certificate
+
 ## Security Features
 
 - Password hashing using Werkzeug
@@ -319,6 +352,21 @@ heroku open
 5. **Background Jobs**: Use Celery for async tasks (email, notifications)
 6. **API Rate Limiting**: Implement rate limiting for API endpoints
 
+## ⌨️ Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `H` | Go to Home |
+| `C` | Go to Courses |
+| `D` | Go to Dashboard |
+| `T` | Open AI Tutor |
+| `R` | View Rewards |
+| `P` | Open Profile |
+| `L` | Toggle Language |
+| `M` | Toggle Dark Mode |
+| `?` | Show Shortcuts |
+| `Esc` | Close Modal |
+
 ## 🚀 Roadmap
 
 ### Phase 1 - Core Platform ✅
@@ -331,22 +379,28 @@ heroku open
 - [x] Mobile-responsive design
 - [x] Deployed to production
 
-### Phase 2 - Engagement (In Progress)
-- [ ] Gamification system (points, badges, leaderboards)
-- [ ] Daily streaks and rewards
-- [ ] Social learning features
-- [ ] Push notifications
-- [ ] Offline mode (PWA)
+### Phase 2 - Engagement ✅
+- [x] Gamification system (points, badges, leaderboards)
+- [x] Daily streaks and rewards
+- [x] Certificate generation
+- [x] PWA with offline support
+- [x] Dark/Light mode
+- [x] Sound effects
+- [x] Animated onboarding tour
+- [x] Keyboard shortcuts
+- [x] User profiles with avatars
+- [x] Progress charts
 
-### Phase 3 - Advanced Features
+### Phase 3 - Advanced Features (In Progress)
 - [ ] Video lessons support
 - [ ] Advanced AI with GPT/Claude integration
-- [ ] Certificate generation
 - [ ] Instructor dashboard
 - [ ] Advanced analytics
-- [ ] Mobile app (React Native/Flutter)
+- [ ] Push notifications
+- [ ] Social learning features
 
 ### Phase 4 - Scale
+- [ ] Mobile app (React Native/Flutter)
 - [ ] Multi-tenant for schools
 - [ ] Corporate training modules
 - [ ] API for third-party integration
