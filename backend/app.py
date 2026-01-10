@@ -1,3 +1,9 @@
+import os
+import sys
+
+# Add backend directory to Python path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from flask import Flask, request, jsonify, send_from_directory
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_cors import CORS
@@ -6,10 +12,6 @@ from models import db, User, Course, Lesson, Quiz, Question, QuizAttempt, Progre
 from config import Config
 from chatbot import SimpleChatbot
 from mpesa import MPesaAPI
-import os
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 app = Flask(__name__, static_folder='../frontend/static', static_url_path='')
 app.config.from_object(Config)
