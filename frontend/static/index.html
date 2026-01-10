@@ -49,6 +49,10 @@
                         <span class="nav-text-en">📜 Certs</span>
                         <span class="nav-text-sw" style="display:none;">📜 Vyeti</span>
                     </a>
+                    <a href="#" class="nav-link" onclick="showPage('profile')" id="profileLink" style="display:none;">
+                        <span class="nav-text-en">👤 Profile</span>
+                        <span class="nav-text-sw" style="display:none;">👤 Wasifu</span>
+                    </a>
                     
                     <div class="nav-auth" id="navAuth">
                         <button class="btn btn-outline" onclick="showPage('login')" id="loginBtn">
@@ -475,6 +479,182 @@
                 <span class="text-sw" style="display:none;">📜 Vyeti Vyangu</span>
             </h1>
             <div class="certificates-grid" id="certificatesGrid"></div>
+        </div>
+    </div>
+
+    <!-- User Profile Page -->
+    <div id="profilePage" class="page">
+        <div class="container">
+            <div class="profile-header">
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar" id="profileAvatar">
+                        <span id="avatarInitial">U</span>
+                        <img id="avatarImage" src="" alt="" style="display:none;">
+                    </div>
+                    <label class="avatar-upload-btn" for="avatarUpload">
+                        <span>📷</span>
+                        <input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)" style="display:none;">
+                    </label>
+                </div>
+                <div class="profile-info">
+                    <h1 id="profileUsername">Username</h1>
+                    <p id="profileEmail" class="text-muted">email@example.com</p>
+                    <div class="profile-badges" id="profileBadges"></div>
+                </div>
+            </div>
+            
+            <div class="profile-stats-grid">
+                <div class="profile-stat-card">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-value" id="profileStreak">0</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+                <div class="profile-stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value" id="profilePoints">0</div>
+                    <div class="stat-label">Total Points</div>
+                </div>
+                <div class="profile-stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-value" id="profileCourses">0</div>
+                    <div class="stat-label">Courses</div>
+                </div>
+                <div class="profile-stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value" id="profileRank">#-</div>
+                    <div class="stat-label">Rank</div>
+                </div>
+            </div>
+            
+            <!-- Progress Chart -->
+            <div class="profile-section">
+                <h2>📊 Learning Progress</h2>
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Activity Chart -->
+            <div class="profile-section">
+                <h2>📈 Weekly Activity</h2>
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Settings -->
+            <div class="profile-section">
+                <h2>⚙️ Settings</h2>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <span>🔔 Notifications</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notificationsToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>🔊 Sound Effects</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="soundToggle" checked onchange="toggleSound()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>🌍 Language</span>
+                        <select id="languageSelect" onchange="changeLanguage(this.value)">
+                            <option value="en">English</option>
+                            <option value="sw">Kiswahili</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onboarding Tour Modal -->
+    <div id="onboardingTour" class="onboarding-overlay" style="display:none;">
+        <div class="onboarding-modal">
+            <div class="onboarding-progress">
+                <div class="onboarding-progress-bar" id="onboardingProgress"></div>
+            </div>
+            <div class="onboarding-content" id="onboardingContent">
+                <!-- Step content injected by JS -->
+            </div>
+            <div class="onboarding-nav">
+                <button class="btn btn-outline" id="onboardingPrev" onclick="prevOnboardingStep()">
+                    <span class="text-en">Previous</span>
+                    <span class="text-sw" style="display:none;">Iliyotangulia</span>
+                </button>
+                <div class="onboarding-dots" id="onboardingDots"></div>
+                <button class="btn btn-primary" id="onboardingNext" onclick="nextOnboardingStep()">
+                    <span class="text-en">Next</span>
+                    <span class="text-sw" style="display:none;">Ifuatayo</span>
+                </button>
+            </div>
+            <button class="onboarding-skip" onclick="skipOnboarding()">
+                <span class="text-en">Skip Tour</span>
+                <span class="text-sw" style="display:none;">Ruka Ziara</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Level Up Modal -->
+    <div id="levelUpModal" class="celebration-modal" style="display:none;">
+        <div class="celebration-content">
+            <div class="celebration-icon animate-bounce">🎉</div>
+            <h2 class="celebration-title">Level Up!</h2>
+            <div class="level-display">
+                <span class="old-level" id="oldLevel">1</span>
+                <span class="level-arrow">→</span>
+                <span class="new-level" id="newLevel">2</span>
+            </div>
+            <p class="celebration-message" id="levelUpMessage">You've reached a new level!</p>
+            <button class="btn btn-primary" onclick="closeLevelUpModal()">Awesome! 🚀</button>
+        </div>
+    </div>
+
+    <!-- Badge Earned Modal -->
+    <div id="badgeModal" class="celebration-modal" style="display:none;">
+        <div class="celebration-content">
+            <div class="badge-earned-icon" id="earnedBadgeIcon">🏅</div>
+            <h2 class="celebration-title">Badge Earned!</h2>
+            <p class="badge-earned-name" id="earnedBadgeName">Achievement Unlocked</p>
+            <p class="celebration-message" id="badgeMessage">Keep up the great work!</p>
+            <button class="btn btn-primary" onclick="closeBadgeModal()">Collect Badge ✨</button>
+        </div>
+    </div>
+
+    <!-- Streak Modal -->
+    <div id="streakModal" class="celebration-modal" style="display:none;">
+        <div class="celebration-content">
+            <div class="streak-fire">🔥</div>
+            <h2 class="celebration-title" id="streakTitle">7 Day Streak!</h2>
+            <p class="celebration-message">You're on fire! Keep learning every day!</p>
+            <div class="streak-bonus">+<span id="streakBonus">50</span> bonus points!</div>
+            <button class="btn btn-primary" onclick="closeStreakModal()">Keep Going! 💪</button>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="shortcutsModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⌨️ Keyboard Shortcuts</h2>
+                <button class="modal-close" onclick="closeShortcutsModal()">×</button>
+            </div>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item"><kbd>H</kbd> <span>Home</span></div>
+                <div class="shortcut-item"><kbd>C</kbd> <span>Courses</span></div>
+                <div class="shortcut-item"><kbd>D</kbd> <span>Dashboard</span></div>
+                <div class="shortcut-item"><kbd>T</kbd> <span>AI Tutor</span></div>
+                <div class="shortcut-item"><kbd>R</kbd> <span>Rewards</span></div>
+                <div class="shortcut-item"><kbd>P</kbd> <span>Profile</span></div>
+                <div class="shortcut-item"><kbd>L</kbd> <span>Toggle Language</span></div>
+                <div class="shortcut-item"><kbd>M</kbd> <span>Toggle Dark Mode</span></div>
+                <div class="shortcut-item"><kbd>?</kbd> <span>Show Shortcuts</span></div>
+                <div class="shortcut-item"><kbd>Esc</kbd> <span>Close Modal</span></div>
+            </div>
         </div>
     </div>
 

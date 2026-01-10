@@ -64,11 +64,16 @@ function showPage(pageName) {
     const targetPage = document.getElementById(pageName + 'Page');
     if (targetPage) targetPage.classList.add('active');
     
+    // Close mobile nav
+    document.getElementById('navMenu')?.classList.remove('active');
+    document.getElementById('navToggle')?.classList.remove('active');
+    
     if (pageName === 'courses') loadCourses();
     if (pageName === 'dashboard') loadDashboard();
     if (pageName === 'chatbot') initChatbot();
     if (pageName === 'gamification') loadGamification();
     if (pageName === 'certificates') loadCertificates();
+    if (pageName === 'profile') loadProfile();
 }
 
 function toggleNav() {
@@ -157,6 +162,7 @@ function updateAuthUI() {
     document.getElementById('chatbotLink').style.display = isLoggedIn ? 'inline-block' : 'none';
     document.getElementById('gamificationLink').style.display = isLoggedIn ? 'inline-block' : 'none';
     document.getElementById('certificatesLink').style.display = isLoggedIn ? 'inline-block' : 'none';
+    document.getElementById('profileLink').style.display = isLoggedIn ? 'inline-block' : 'none';
 }
 
 async function register(event) {
@@ -697,6 +703,415 @@ function shareCertificate(certId) {
     }
 }
 
+// ==================== SOUND EFFECTS ====================
+let soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+
+const sounds = {
+    click: () => playTone(800, 0.1),
+    success: () => playTone(523, 0.15, () => playTone(659, 0.15, () => playTone(784, 0.2))),
+    levelUp: () => playTone(523, 0.1, () => playTone(659, 0.1, () => playTone(784, 0.1, () => playTone(1047, 0.3)))),
+    badge: () => playTone(784, 0.15, () => playTone(988, 0.15, () => playTone(1175, 0.25))),
+    streak: () => playTone(440, 0.1, () => playTone(554, 0.1, () => playTone(659, 0.2))),
+    error: () => playTone(200, 0.3),
+    notification: () => playTone(600, 0.1, () => playTone(800, 0.15))
+};
+
+function playTone(frequency, duration, callback) {
+    if (!soundEnabled) {
+        if (callback) callback();
+        return;
+    }
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = frequency;
+        oscillator.type = 'sine';
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + duration);
+        
+        if (callback) {
+            setTimeout(callback, duration * 1000);
+        }
+    } catch (e) {
+        console.log('Audio not supported');
+    }
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('soundEnabled', soundEnabled);
+    document.getElementById('soundToggle').checked = soundEnabled;
+    showToast(soundEnabled ? '🔊 Sound enabled' : '🔇 Sound disabled', 'info');
+}
+
+// ==================== PROFILE PAGE ====================
+function loadProfile() {
+    if (!currentUser) return;
+    
+    document.getElementById('profileUsername').textContent = currentUser.username;
+    document.getElementById('profileEmail').textContent = currentUser.email;
+    document.getElementById('avatarInitial').textContent = currentUser.username.charAt(0).toUpperCase();
+    
+    // Load stats
+    loadProfileStats();
+    renderProgressChart();
+    renderActivityChart();
+}
+
+async function loadProfileStats() {
+    try {
+        const response = await fetch(`${API_BASE}/api/gamification/stats`, { credentials: 'include' });
+        const result = await response.json();
+        
+        if (result.success) {
+            document.getElementById('profileStreak').textContent = result.stats.current_streak || 0;
+            document.getElementById('profilePoints').textContent = result.stats.total_points || 0;
+        }
+        
+        // Load dashboard for course count
+        const dashResponse = await fetch(`${API_BASE}/api/dashboard`, { credentials: 'include' });
+        const dashResult = await dashResponse.json();
+        
+        if (dashResult.success) {
+            document.getElementById('profileCourses').textContent = dashResult.courses_in_progress || 0;
+        }
+    } catch (error) {
+        console.error('Error loading profile stats:', error);
+    }
+}
+
+function uploadAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const avatarImage = document.getElementById('avatarImage');
+            const avatarInitial = document.getElementById('avatarInitial');
+            avatarImage.src = e.target.result;
+            avatarImage.style.display = 'block';
+            avatarInitial.style.display = 'none';
+            localStorage.setItem('userAvatar', e.target.result);
+            showToast('Avatar updated!', 'success');
+            sounds.success();
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function loadSavedAvatar() {
+    const savedAvatar = localStorage.getItem('userAvatar');
+    if (savedAvatar) {
+        const avatarImage = document.getElementById('avatarImage');
+        const avatarInitial = document.getElementById('avatarInitial');
+        if (avatarImage && avatarInitial) {
+            avatarImage.src = savedAvatar;
+            avatarImage.style.display = 'block';
+            avatarInitial.style.display = 'none';
+        }
+    }
+}
+
+// ==================== CHARTS ====================
+function renderProgressChart() {
+    const canvas = document.getElementById('progressChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const width = canvas.parentElement.offsetWidth;
+    const height = 200;
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Sample data - in production this would come from API
+    const data = [30, 45, 60, 55, 80, 75, 90];
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const maxVal = Math.max(...data);
+    
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw bars
+    const barWidth = (width - 60) / data.length - 10;
+    const gradient = ctx.createLinearGradient(0, height, 0, 0);
+    gradient.addColorStop(0, '#4f46e5');
+    gradient.addColorStop(1, '#7c3aed');
+    
+    data.forEach((value, index) => {
+        const barHeight = (value / maxVal) * (height - 40);
+        const x = 30 + index * (barWidth + 10);
+        const y = height - barHeight - 25;
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.roundRect(x, y, barWidth, barHeight, 4);
+        ctx.fill();
+        
+        // Labels
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
+        ctx.font = '12px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[index], x + barWidth / 2, height - 5);
+        ctx.fillText(value + '%', x + barWidth / 2, y - 5);
+    });
+}
+
+function renderActivityChart() {
+    const canvas = document.getElementById('activityChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const width = canvas.parentElement.offsetWidth;
+    const height = 200;
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Sample data
+    const data = [2, 3, 1, 4, 2, 5, 3];
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const maxVal = Math.max(...data);
+    
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw line chart
+    ctx.strokeStyle = '#4f46e5';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    ctx.beginPath();
+    data.forEach((value, index) => {
+        const x = 40 + index * ((width - 80) / (data.length - 1));
+        const y = height - 30 - (value / maxVal) * (height - 60);
+        
+        if (index === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    });
+    ctx.stroke();
+    
+    // Draw points
+    data.forEach((value, index) => {
+        const x = 40 + index * ((width - 80) / (data.length - 1));
+        const y = height - 30 - (value / maxVal) * (height - 60);
+        
+        ctx.fillStyle = '#4f46e5';
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Labels
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
+        ctx.font = '12px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[index], x, height - 5);
+    });
+}
+
+// ==================== ONBOARDING TOUR ====================
+let onboardingStep = 0;
+const onboardingSteps = [
+    {
+        icon: '👋',
+        title: 'Welcome to ElimuAI!',
+        titleSw: 'Karibu ElimuAI!',
+        text: 'Your personalized AI-powered learning platform. Let us show you around!',
+        textSw: 'Jukwaa lako la kujifunza kwa AI. Hebu tukuonyeshe!'
+    },
+    {
+        icon: '📚',
+        title: 'Browse Courses',
+        titleSw: 'Tazama Kozi',
+        text: 'Explore courses in Math, Business, and Vocational Skills. Learn at your own pace!',
+        textSw: 'Tazama kozi za Hesabu, Biashara, na Ujuzi wa Ufundi. Jifunze kwa kasi yako!'
+    },
+    {
+        icon: '🤖',
+        title: 'AI Tutor',
+        titleSw: 'Mwalimu wa AI',
+        text: 'Got questions? Chat with our AI tutor anytime in English or Swahili!',
+        textSw: 'Una maswali? Zungumza na mwalimu wetu wa AI wakati wowote!'
+    },
+    {
+        icon: '🏆',
+        title: 'Earn Rewards',
+        titleSw: 'Pata Tuzo',
+        text: 'Complete lessons, take quizzes, and earn points, badges, and certificates!',
+        textSw: 'Kamilisha masomo, fanya majaribio, na upate pointi, beji, na vyeti!'
+    },
+    {
+        icon: '🚀',
+        title: 'Ready to Start!',
+        titleSw: 'Tayari Kuanza!',
+        text: 'You\'re all set! Start learning and achieve your goals!',
+        textSw: 'Uko tayari! Anza kujifunza na kufikia malengo yako!'
+    }
+];
+
+function startOnboarding() {
+    if (localStorage.getItem('onboardingComplete')) return;
+    
+    onboardingStep = 0;
+    document.getElementById('onboardingTour').style.display = 'flex';
+    renderOnboardingStep();
+    sounds.notification();
+}
+
+function renderOnboardingStep() {
+    const step = onboardingSteps[onboardingStep];
+    const content = document.getElementById('onboardingContent');
+    const progress = document.getElementById('onboardingProgress');
+    const dots = document.getElementById('onboardingDots');
+    const prevBtn = document.getElementById('onboardingPrev');
+    const nextBtn = document.getElementById('onboardingNext');
+    
+    content.innerHTML = `
+        <div class="onboarding-icon">${step.icon}</div>
+        <h2 class="onboarding-title">${currentLanguage === 'sw' ? step.titleSw : step.title}</h2>
+        <p class="onboarding-text">${currentLanguage === 'sw' ? step.textSw : step.text}</p>
+    `;
+    
+    progress.style.width = ((onboardingStep + 1) / onboardingSteps.length * 100) + '%';
+    
+    dots.innerHTML = onboardingSteps.map((_, i) => 
+        `<div class="onboarding-dot ${i === onboardingStep ? 'active' : ''}"></div>`
+    ).join('');
+    
+    prevBtn.style.visibility = onboardingStep === 0 ? 'hidden' : 'visible';
+    nextBtn.innerHTML = onboardingStep === onboardingSteps.length - 1 
+        ? `<span class="text-en">Get Started!</span><span class="text-sw" style="display:${currentLanguage === 'sw' ? 'inline' : 'none'};">Anza!</span>`
+        : `<span class="text-en">Next</span><span class="text-sw" style="display:${currentLanguage === 'sw' ? 'inline' : 'none'};">Ifuatayo</span>`;
+}
+
+function nextOnboardingStep() {
+    sounds.click();
+    if (onboardingStep < onboardingSteps.length - 1) {
+        onboardingStep++;
+        renderOnboardingStep();
+    } else {
+        completeOnboarding();
+    }
+}
+
+function prevOnboardingStep() {
+    sounds.click();
+    if (onboardingStep > 0) {
+        onboardingStep--;
+        renderOnboardingStep();
+    }
+}
+
+function skipOnboarding() {
+    completeOnboarding();
+}
+
+function completeOnboarding() {
+    document.getElementById('onboardingTour').style.display = 'none';
+    localStorage.setItem('onboardingComplete', 'true');
+    showToast('Welcome aboard! 🎉', 'success');
+    sounds.success();
+}
+
+// ==================== CELEBRATION MODALS ====================
+function showLevelUp(oldLevel, newLevel) {
+    document.getElementById('oldLevel').textContent = oldLevel;
+    document.getElementById('newLevel').textContent = newLevel;
+    document.getElementById('levelUpModal').style.display = 'flex';
+    showConfetti();
+    sounds.levelUp();
+}
+
+function closeLevelUpModal() {
+    document.getElementById('levelUpModal').style.display = 'none';
+    sounds.click();
+}
+
+function showBadgeEarned(badgeIcon, badgeName, message) {
+    document.getElementById('earnedBadgeIcon').textContent = badgeIcon;
+    document.getElementById('earnedBadgeName').textContent = badgeName;
+    document.getElementById('badgeMessage').textContent = message || 'Keep up the great work!';
+    document.getElementById('badgeModal').style.display = 'flex';
+    showConfetti();
+    sounds.badge();
+}
+
+function closeBadgeModal() {
+    document.getElementById('badgeModal').style.display = 'none';
+    sounds.click();
+}
+
+function showStreakCelebration(days, bonus) {
+    document.getElementById('streakTitle').textContent = `${days} Day Streak!`;
+    document.getElementById('streakBonus').textContent = bonus;
+    document.getElementById('streakModal').style.display = 'flex';
+    sounds.streak();
+}
+
+function closeStreakModal() {
+    document.getElementById('streakModal').style.display = 'none';
+    sounds.click();
+}
+
+// ==================== KEYBOARD SHORTCUTS ====================
+function initKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        // Ignore if typing in input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        
+        const key = e.key.toLowerCase();
+        
+        switch(key) {
+            case 'h': showPage('home'); break;
+            case 'c': if (currentUser) showPage('courses'); break;
+            case 'd': if (currentUser) showPage('dashboard'); break;
+            case 't': if (currentUser) showPage('chatbot'); break;
+            case 'r': if (currentUser) showPage('gamification'); break;
+            case 'p': if (currentUser) showPage('profile'); break;
+            case 'l': toggleLanguage(); break;
+            case 'm': toggleTheme(); break;
+            case '?': showShortcutsModal(); break;
+            case 'escape': closeAllModals(); break;
+        }
+    });
+}
+
+function showShortcutsModal() {
+    document.getElementById('shortcutsModal').style.display = 'flex';
+}
+
+function closeShortcutsModal() {
+    document.getElementById('shortcutsModal').style.display = 'none';
+}
+
+function closeAllModals() {
+    document.getElementById('shortcutsModal').style.display = 'none';
+    document.getElementById('levelUpModal').style.display = 'none';
+    document.getElementById('badgeModal').style.display = 'none';
+    document.getElementById('streakModal').style.display = 'none';
+    document.getElementById('onboardingTour').style.display = 'none';
+}
+
+// ==================== LANGUAGE CHANGE ====================
+function changeLanguage(lang) {
+    currentLanguage = lang;
+    document.getElementById('langToggleText').textContent = lang === 'en' ? 'SW' : 'EN';
+    updateLanguageDisplay();
+    showToast(lang === 'sw' ? 'Lugha imebadilika kuwa Kiswahili' : 'Language changed to English', 'info');
+}
+
 // Award points for actions
 async function awardPoints(action) {
     try {
@@ -711,5 +1126,18 @@ async function awardPoints(action) {
     }
 }
 
+// Initialize app
 updateAuthUI();
 updateLanguageDisplay();
+initKeyboardShortcuts();
+loadSavedAvatar();
+
+// Show onboarding for new users after login
+document.addEventListener('DOMContentLoaded', () => {
+    // Check for first visit
+    setTimeout(() => {
+        if (currentUser && !localStorage.getItem('onboardingComplete')) {
+            startOnboarding();
+        }
+    }, 1000);
+});
