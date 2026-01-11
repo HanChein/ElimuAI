@@ -341,12 +341,19 @@ function displayCourseDetail(course) {
 }
 
 async function viewLesson(lessonId) {
+    currentLessonId = lessonId;
+    
     try {
         const response = await fetch(`${API_BASE}/api/lessons/${lessonId}?language=${currentLanguage}`);
         const result = await response.json();
         
         if (result.success) {
-            displayLesson(result.lesson);
+            // Check if bookmarked
+            const isBookmarked = bookmarks.includes(lessonId);
+            document.getElementById('bookmarkIcon').textContent = isBookmarked ? '🔖' : '🔖';
+            
+            // Display lesson (video or text)
+            displayVideoLesson(result.lesson);
             showPage('lesson');
         }
     } catch (error) {
@@ -673,6 +680,348 @@ function toggleFab() {
     icon.style.transform = container.classList.contains('open') ? 'rotate(45deg)' : 'rotate(0)';
 }
 
+// ==================== LESSON ENHANCEMENTS ====================
+let currentLessonId = null;
+let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+
+function toggleBookmark() {
+    if (!currentLessonId) return;
+    
+    const index = bookmarks.indexOf(currentLessonId);
+    if (index > -1) {
+        bookmarks.splice(index, 1);
+        document.getElementById('bookmarkIcon').textContent = '🔖';
+        showToast('Bookmark removed', 'info');
+    } else {
+        bookmarks.push(currentLessonId);
+        document.getElementById('bookmarkIcon').textContent = '🔖';
+        showToast('Lesson bookmarked!', 'success');
+    }
+    
+    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    updateBookmarksDisplay();
+}
+
+function toggleNotes() {
+    const panel = document.getElementById('notesPanel');
+    panel.classList.toggle('open');
+    
+    if (panel.classList.contains('open')) {
+        loadNotes();
+        document.getElementById('notesTextarea').focus();
+    }
+}
+
+function saveNotes() {
+    if (!currentLessonId) return;
+    
+    const content = document.getElementById('notesTextarea').value;
+    const noteIndex = notes.findIndex(n => n.lessonId === currentLessonId);
+    
+    if (noteIndex > -1) {
+        notes[noteIndex].content = content;
+        notes[noteIndex].updatedAt = new Date().toISOString();
+    } else {
+        notes.push({
+            lessonId: currentLessonId,
+            content: content,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+    }
+    
+    localStorage.setItem('notes', JSON.stringify(notes));
+    
+    const saved = document.getElementById('notesSaved');
+    saved.style.display = 'inline';
+    setTimeout(() => saved.style.display = 'none', 2000);
+    
+    updateNotesDisplay();
+    showToast('Notes saved!', 'success');
+}
+
+function loadNotes() {
+    if (!currentLessonId) return;
+    
+    const note = notes.find(n => n.lessonId === currentLessonId);
+    document.getElementById('notesTextarea').value = note ? note.content : '';
+}
+
+function updateBookmarksDisplay() {
+    const grid = document.getElementById('bookmarksGrid');
+    if (!grid) return;
+    
+    if (bookmarks.length === 0) {
+        grid.innerHTML = '<div class="no-bookmarks"><p>No bookmarked lessons yet</p></div>';
+        return;
+    }
+    
+    // This would need course data - for now showing placeholder
+    grid.innerHTML = bookmarks.map(id => `
+        <div class="bookmark-item">
+            <span class="bookmark-icon">🔖</span>
+            <div class="bookmark-info">
+                <div class="bookmark-title">Lesson ${id}</div>
+                <div class="bookmark-course">Course</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateNotesDisplay() {
+    const list = document.getElementById('notesList');
+    if (!list) return;
+    
+    const recentNotes = notes.slice(-5).reverse();
+    
+    if (recentNotes.length === 0) {
+        list.innerHTML = '<div class="no-notes"><p>No notes yet</p></div>';
+        return;
+    }
+    
+    list.innerHTML = recentNotes.map(note => `
+        <div class="note-item" onclick="openNote(${note.lessonId})">
+            <div class="note-header">
+                <span class="note-lesson">Lesson ${note.lessonId}</span>
+                <span class="note-date">${new Date(note.updatedAt).toLocaleDateString()}</span>
+            </div>
+            <div class="note-preview">${note.content.substring(0, 100)}...</div>
+        </div>
+    `).join('');
+}
+
+function openNote(lessonId) {
+    // Navigate to lesson and open notes
+    viewLesson(lessonId);
+    setTimeout(() => toggleNotes(), 500);
+}
+
+// ==================== SOCIAL SHARING ====================
+let shareData = {};
+
+function shareLesson() {
+    if (!currentLessonId) return;
+    
+    shareData = {
+        title: 'Check out this lesson on ElimuAI',
+        text: 'I\'m learning with ElimuAI - AI-powered education for Tanzania!',
+        url: window.location.origin + '/lesson/' + currentLessonId
+    };
+    
+    document.getElementById('shareModal').style.display = 'block';
+}
+
+function shareAchievement(type, data) {
+    shareData = {
+        title: `I earned a ${type} on ElimuAI!`,
+        text: `Just achieved ${data} on ElimuAI - Join me in learning!`,
+        url: window.location.origin
+    };
+    
+    document.getElementById('shareModal').style.display = 'block';
+}
+
+function shareOnWhatsApp() {
+    const text = `${shareData.title} ${shareData.text} ${shareData.url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    closeShareModal();
+}
+
+function shareOnTwitter() {
+    const text = `${shareData.title} ${shareData.url}`;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+    closeShareModal();
+}
+
+function shareOnFacebook() {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}`, '_blank');
+    closeShareModal();
+}
+
+function copyShareLink() {
+    navigator.clipboard.writeText(shareData.url);
+    showToast('Link copied to clipboard!', 'success');
+    closeShareModal();
+}
+
+function closeShareModal() {
+    document.getElementById('shareModal').style.display = 'none';
+}
+
+// ==================== PUSH NOTIFICATIONS ====================
+let pushSubscription = null;
+
+async function togglePushNotifications() {
+    const toggle = document.getElementById('pushToggle');
+    
+    if (toggle.checked) {
+        await requestPushPermission();
+    } else {
+        await unsubscribePush();
+    }
+}
+
+async function requestPushPermission() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        showToast('Push notifications not supported', 'warning');
+        document.getElementById('pushToggle').checked = false;
+        return;
+    }
+    
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: 'YOUR_VAPID_PUBLIC_KEY' // Would need actual VAPID key
+        });
+        
+        pushSubscription = subscription;
+        localStorage.setItem('pushSubscription', JSON.stringify(subscription));
+        showToast('Push notifications enabled!', 'success');
+        
+        // Send subscription to backend
+        await fetch(`${API_BASE}/api/push/subscribe`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(subscription)
+        });
+    } catch (error) {
+        console.error('Push subscription error:', error);
+        showToast('Failed to enable push notifications', 'error');
+        document.getElementById('pushToggle').checked = false;
+    }
+}
+
+async function unsubscribePush() {
+    if (pushSubscription) {
+        await pushSubscription.unsubscribe();
+        pushSubscription = null;
+        localStorage.removeItem('pushSubscription');
+        showToast('Push notifications disabled', 'info');
+    }
+}
+
+async function toggleBrowserNotifications() {
+    const toggle = document.getElementById('notificationsToggle');
+    
+    if (toggle.checked) {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            showToast('Browser notifications enabled!', 'success');
+        } else {
+            toggle.checked = false;
+            showToast('Notification permission denied', 'warning');
+        }
+    }
+}
+
+function showBrowserNotification(title, body, icon = '/favicon.ico') {
+    if (Notification.permission === 'granted') {
+        new Notification(title, { body, icon });
+    }
+}
+
+// ==================== VIDEO PLAYER ====================
+function displayVideoLesson(lesson) {
+    const content = document.getElementById('lessonContent');
+    
+    if (lesson.video_url) {
+        content.innerHTML = `
+            <h1>${lesson.title}</h1>
+            <div class="video-container">
+                <video class="video-player" id="videoPlayer" controls>
+                    <source src="${lesson.video_url}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="video-controls">
+                    <button class="video-play-btn" onclick="togglePlay()">▶</button>
+                    <div class="video-progress" onclick="seekVideo(event)">
+                        <div class="video-progress-fill" id="videoProgress"></div>
+                    </div>
+                    <span class="video-time" id="videoTime">0:00 / 0:00</span>
+                    <button class="video-fullscreen" onclick="toggleFullscreen()">⛶</button>
+                </div>
+            </div>
+            <div class="lesson-content">
+                ${lesson.content}
+            </div>
+            <button class="btn btn-primary" onclick="completeLesson(${lesson.id})">
+                ${currentLanguage === 'sw' ? 'Maliza Somo' : 'Complete Lesson'}
+            </button>
+        `;
+        
+        initVideoPlayer();
+    } else {
+        // Regular lesson display
+        displayLesson(lesson);
+    }
+}
+
+function initVideoPlayer() {
+    const video = document.getElementById('videoPlayer');
+    if (!video) return;
+    
+    video.addEventListener('timeupdate', updateVideoProgress);
+    video.addEventListener('loadedmetadata', updateVideoTime);
+    video.addEventListener('play', () => {
+        document.querySelector('.video-play-btn').textContent = '❚❚';
+    });
+    video.addEventListener('pause', () => {
+        document.querySelector('.video-play-btn').textContent = '▶';
+    });
+}
+
+function togglePlay() {
+    const video = document.getElementById('videoPlayer');
+    if (video.paused) {
+        video.play();
+    } else {
+        video.pause();
+    }
+}
+
+function updateVideoProgress() {
+    const video = document.getElementById('videoPlayer');
+    const progress = document.getElementById('videoProgress');
+    if (video && progress) {
+        const percent = (video.currentTime / video.duration) * 100;
+        progress.style.width = percent + '%';
+        updateVideoTime();
+    }
+}
+
+function updateVideoTime() {
+    const video = document.getElementById('videoPlayer');
+    const timeDisplay = document.getElementById('videoTime');
+    if (video && timeDisplay) {
+        const current = formatTime(video.currentTime);
+        const duration = formatTime(video.duration);
+        timeDisplay.textContent = `${current} / ${duration}`;
+    }
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function seekVideo(event) {
+    const video = document.getElementById('videoPlayer');
+    const progress = event.currentTarget;
+    const rect = progress.getBoundingClientRect();
+    const percent = (event.clientX - rect.left) / rect.width;
+    video.currentTime = percent * video.duration;
+}
+
+function toggleFullscreen() {
+    const video = document.getElementById('videoPlayer');
+    if (video.requestFullscreen) {
+        video.requestFullscreen();
+    }
+}
+
 // ==================== GAMIFICATION FUNCTIONS ====================
 
 async function loadGamification() {
@@ -803,17 +1152,13 @@ async function generateCertificate(courseId) {
 }
 
 function shareCertificate(certId) {
-    const url = `${window.location.origin}/api/certificates/verify/${certId}`;
-    if (navigator.share) {
-        navigator.share({
-            title: 'ElimuAI Certificate',
-            text: currentLanguage === 'sw' ? 'Angalia cheti changu cha ElimuAI!' : 'Check out my ElimuAI certificate!',
-            url: url
-        });
-    } else {
-        navigator.clipboard.writeText(url);
-        showNotification(currentLanguage === 'sw' ? 'Kiungo kimenakiliwa!' : 'Link copied!', 'success');
-    }
+    shareData = {
+        title: 'ElimuAI Certificate',
+        text: currentLanguage === 'sw' ? 'Angalia cheti changu cha ElimuAI!' : 'Check out my ElimuAI certificate!',
+        url: `${window.location.origin}/api/certificates/verify/${certId}`
+    };
+    
+    document.getElementById('shareModal').style.display = 'block';
 }
 
 // ==================== SOUND EFFECTS ====================
@@ -1244,6 +1589,8 @@ updateAuthUI();
 updateLanguageDisplay();
 initKeyboardShortcuts();
 loadSavedAvatar();
+updateBookmarksDisplay();
+updateNotesDisplay();
 
 // Show onboarding for new users after login
 document.addEventListener('DOMContentLoaded', () => {
@@ -1251,6 +1598,17 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         if (currentUser && !localStorage.getItem('onboardingComplete')) {
             startOnboarding();
+        }
+        
+        // Initialize notification settings
+        const pushToggle = document.getElementById('pushToggle');
+        if (pushToggle && localStorage.getItem('pushSubscription')) {
+            pushToggle.checked = true;
+        }
+        
+        const notifToggle = document.getElementById('notificationsToggle');
+        if (notifToggle && Notification.permission === 'granted') {
+            notifToggle.checked = true;
         }
     }, 1000);
 });

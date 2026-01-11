@@ -368,11 +368,48 @@
 
         <div id="lessonPage" class="page">
             <div class="container">
-                <button class="btn btn-outline" onclick="backToCourse()">
-                    <span class="text-en">← Back to Course</span>
-                    <span class="text-sw" style="display:none;">← Rudi kwa Kozi</span>
-                </button>
+                <div class="lesson-header">
+                    <button class="btn btn-outline" onclick="backToCourse()">
+                        <span class="text-en">← Back to Course</span>
+                        <span class="text-sw" style="display:none;">← Rudi kwa Kozi</span>
+                    </button>
+                    <div class="lesson-actions">
+                        <button class="btn btn-sm btn-outline" onclick="toggleBookmark()" id="bookmarkBtn" title="Bookmark lesson">
+                            <span id="bookmarkIcon">🔖</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="toggleNotes()" id="notesBtn" title="Take notes">
+                            <span>📝</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="shareLesson()" title="Share lesson">
+                            <span>📤</span>
+                        </button>
+                    </div>
+                </div>
                 <div id="lessonContent"></div>
+                
+                <!-- Notes Panel -->
+                <div class="notes-panel" id="notesPanel" style="display:none;">
+                    <div class="notes-header">
+                        <h3>
+                            <span class="text-en">📝 Lesson Notes</span>
+                            <span class="text-sw" style="display:none;">📝 Maelezo ya Somo</span>
+                        </h3>
+                        <button class="btn btn-sm btn-outline" onclick="toggleNotes()">×</button>
+                    </div>
+                    <div class="notes-content">
+                        <textarea id="notesTextarea" placeholder="Type your notes here..." rows="8"></textarea>
+                        <div class="notes-actions">
+                            <button class="btn btn-primary" onclick="saveNotes()">
+                                <span class="text-en">Save Notes</span>
+                                <span class="text-sw" style="display:none;">Hifadhi Maelezo</span>
+                            </button>
+                            <span class="notes-saved" id="notesSaved" style="display:none;">
+                                <span class="text-en">✓ Saved</span>
+                                <span class="text-sw" style="display:none;">✅ Imehifadhiwa</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -593,14 +630,41 @@
                 </div>
             </div>
             
+            <!-- Bookmarked Lessons -->
+            <div class="profile-section">
+                <h2>🔖 Bookmarked Lessons</h2>
+                <div class="bookmarks-grid" id="bookmarksGrid">
+                    <div class="no-bookmarks">
+                        <p>No bookmarked lessons yet</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Notes -->
+            <div class="profile-section">
+                <h2>📝 Recent Notes</h2>
+                <div class="notes-list" id="notesList">
+                    <div class="no-notes">
+                        <p>No notes yet</p>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Settings -->
             <div class="profile-section">
                 <h2>⚙️ Settings</h2>
                 <div class="settings-grid">
                     <div class="setting-item">
-                        <span>🔔 Notifications</span>
+                        <span>🔔 Push Notifications</span>
                         <label class="toggle-switch">
-                            <input type="checkbox" id="notificationsToggle" checked>
+                            <input type="checkbox" id="pushToggle" onchange="togglePushNotifications()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>🔔 Browser Notifications</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notificationsToggle" checked onchange="toggleBrowserNotifications()">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -709,6 +773,34 @@
         </div>
     </div>
 
+    <!-- Share Modal -->
+    <div id="shareModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📤 Share</h2>
+                <button class="modal-close" onclick="closeShareModal()">×</button>
+            </div>
+            <div class="share-content">
+                <div class="share-item" onclick="shareOnWhatsApp()">
+                    <span class="share-icon">💬</span>
+                    <span>WhatsApp</span>
+                </div>
+                <div class="share-item" onclick="shareOnTwitter()">
+                    <span class="share-icon">🐦</span>
+                    <span>Twitter</span>
+                </div>
+                <div class="share-item" onclick="shareOnFacebook()">
+                    <span class="share-icon">📘</span>
+                    <span>Facebook</span>
+                </div>
+                <div class="share-item" onclick="copyShareLink()">
+                    <span class="share-icon">🔗</span>
+                    <span>Copy Link</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Floating Action Button -->
     <div class="fab-container" id="fabContainer">
         <div class="fab-menu">
@@ -726,6 +818,11 @@
                 <span class="fab-item-icon">🏆</span>
                 <span class="text-en">Rewards</span>
                 <span class="text-sw" style="display:none;">Tuzo</span>
+            </div>
+            <div class="fab-item" onclick="showPage('profile'); toggleFab();">
+                <span class="fab-item-icon">👤</span>
+                <span class="text-en">Profile</span>
+                <span class="text-sw" style="display:none;">Wasifu</span>
             </div>
             <div class="fab-item" onclick="showShortcutsModal(); toggleFab();">
                 <span class="fab-item-icon">⌨️</span>
