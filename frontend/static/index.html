@@ -687,6 +687,261 @@
         </div>
     </div>
 
+    <!-- Admin Dashboard Page -->
+    <div id="adminPage" class="page">
+        <div class="container">
+            <div class="admin-header">
+                <h1 class="page-title">
+                    <span class="text-en">🛠️ Admin Dashboard</span>
+                    <span class="text-sw" style="display:none;">🛠️ Dashibodi ya Usimamizi</span>
+                </h1>
+                <div class="admin-actions">
+                    <button class="btn btn-outline" onclick="exportData()">
+                        <span class="text-en">📊 Export Data</span>
+                        <span class="text-sw" style="display:none;">📊 Hamisha Data</span>
+                    </button>
+                    <button class="btn btn-outline" onclick="backupData()">
+                        <span class="text-en">💾 Backup</span>
+                        <span class="text-sw" style="display:none;">💾 Hifadhi Nakala</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Stats Overview -->
+            <div class="admin-stats-grid">
+                <div class="admin-stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">
+                            <span class="text-en">Total Users</span>
+                            <span class="text-sw" style="display:none;">Jumla ya Watumiaji</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalCourses">0</div>
+                        <div class="stat-label">
+                            <span class="text-en">Total Courses</span>
+                            <span class="text-sw" style="display:none;">Jumla ya Kozi</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="stat-icon">🎓</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="activeLearners">0</div>
+                        <div class="stat-label">
+                            <span class="text-en">Active Learners</span>
+                            <span class="text-sw" style="display:none;">Wanafunzi Hai</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalRevenue">$0</div>
+                        <div class="stat-label">
+                            <span class="text-en">Total Revenue</span>
+                            <span class="text-sw" style="display:none;">Jumla ya Mapato</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Tabs -->
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="showAdminTab('overview')">Overview</button>
+                <button class="admin-tab" onclick="showAdminTab('users')">Users</button>
+                <button class="admin-tab" onclick="showAdminTab('courses')">Courses</button>
+                <button class="admin-tab" onclick="showAdminTab('analytics')">Analytics</button>
+                <button class="admin-tab" onclick="showAdminTab('content')">Content</button>
+                <button class="admin-tab" onclick="showAdminTab('settings')">Settings</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="overviewTab" class="admin-tab-content active">
+                <div class="admin-section">
+                    <h2>📈 Recent Activity</h2>
+                    <div class="activity-feed" id="recentActivity"></div>
+                </div>
+
+                <div class="admin-section">
+                    <h2>🏆 Top Performers</h2>
+                    <div class="top-performers" id="topPerformers"></div>
+                </div>
+            </div>
+
+            <div id="usersTab" class="admin-tab-content">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>👥 User Management</h2>
+                        <button class="btn btn-primary" onclick="showCreateUserModal()">
+                            <span class="text-en">Add User</span>
+                            <span class="text-sw" style="display:none;">Ongeza Mtumiaji</span>
+                        </button>
+                    </div>
+                    <div class="data-table">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="coursesTab" class="admin-tab-content">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h2>📚 Course Management</h2>
+                        <button class="btn btn-primary" onclick="showCreateCourseModal()">
+                            <span class="text-en">Create Course</span>
+                            <span class="text-sw" style="display:none;">Tengeneza Kozi</span>
+                        </button>
+                    </div>
+                    <div class="data-table">
+                        <table id="coursesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Lessons</th>
+                                    <th>Students</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coursesTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analyticsTab" class="admin-tab-content">
+                <div class="admin-section">
+                    <h2>📊 Analytics Dashboard</h2>
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h3>User Growth</h3>
+                            <canvas id="userGrowthChart"></canvas>
+                        </div>
+                        <div class="analytics-card">
+                            <h3>Course Popularity</h3>
+                            <canvas id="coursePopularityChart"></canvas>
+                        </div>
+                        <div class="analytics-card">
+                            <h3>Revenue Trends</h3>
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                        <div class="analytics-card">
+                            <h3>Engagement Metrics</h3>
+                            <canvas id="engagementChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h2>📈 Key Metrics</h2>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value" id="avgSessionTime">0m</div>
+                            <div class="metric-label">Avg Session Time</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="completionRate">0%</div>
+                            <div class="metric-label">Course Completion</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="retentionRate">0%</div>
+                            <div class="metric-label">User Retention</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="churnRate">0%</div>
+                            <div class="metric-label">Churn Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="contentTab" class="admin-tab-content">
+                <div class="admin-section">
+                    <h2>📝 Content Management</h2>
+                    <div class="content-management">
+                        <div class="content-section">
+                            <h3>Announcements</h3>
+                            <button class="btn btn-outline" onclick="createAnnouncement()">
+                                New Announcement
+                            </button>
+                            <div id="announcementsList"></div>
+                        </div>
+                        <div class="content-section">
+                            <h3>Featured Content</h3>
+                            <button class="btn btn-outline" onclick="manageFeatured()">
+                                Manage Featured
+                            </button>
+                            <div id="featuredContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settingsTab" class="admin-tab-content">
+                <div class="admin-section">
+                    <h2>⚙️ System Settings</h2>
+                    <div class="settings-grid">
+                        <div class="setting-group">
+                            <h3>Platform Settings</h3>
+                            <div class="setting-item">
+                                <label>Maintenance Mode</label>
+                                <input type="checkbox" id="maintenanceMode" onchange="toggleMaintenance()">
+                            </div>
+                            <div class="setting-item">
+                                <label>Registration Open</label>
+                                <input type="checkbox" id="registrationOpen" checked onchange="toggleRegistration()">
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <h3>Email Settings</h3>
+                            <div class="setting-item">
+                                <label>SMTP Host</label>
+                                <input type="text" id="smtpHost" placeholder="smtp.example.com">
+                            </div>
+                            <div class="setting-item">
+                                <label>SMTP Port</label>
+                                <input type="number" id="smtpPort" placeholder="587">
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <h3>Payment Settings</h3>
+                            <div class="setting-item">
+                                <label>Stripe Public Key</label>
+                                <input type="text" id="stripePublicKey" placeholder="pk_test_...">
+                            </div>
+                            <div class="setting-item">
+                                <label>Stripe Secret Key</label>
+                                <input type="password" id="stripeSecretKey" placeholder="sk_test_...">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Onboarding Tour Modal -->
     <div id="onboardingTour" class="onboarding-overlay" style="display:none;">
         <div class="onboarding-modal">

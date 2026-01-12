@@ -23,6 +23,7 @@ import ForumsScreen from './src/screens/forums/ForumsScreen';
 import ForumTopicScreen from './src/screens/forums/ForumTopicScreen';
 import VideoRecorderScreen from './src/screens/VideoRecorderScreen';
 import OfflineContentScreen from './src/screens/OfflineContentScreen';
+import AIRecommendationsScreen from './src/screens/AIRecommendationsScreen';
 
 // Components
 import TabBar from './src/components/navigation/TabBar';
@@ -93,6 +94,7 @@ export default function App() {
                 {/* Other Screens */}
                 <Stack.Screen name="VideoRecorder" component={VideoRecorderScreen} />
                 <Stack.Screen name="OfflineContent" component={OfflineContentScreen} />
+                <Stack.Screen name="AIRecommendations" component={AIRecommendationsScreen} />
               </Stack.Navigator>
             </NavigationContainer>
             <StatusBar style="auto" />
